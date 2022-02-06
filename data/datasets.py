@@ -38,15 +38,15 @@ SOFTWARE.
 
 import numpy as np
 from PIL import Image
-from sklearn.datasets import (fetch_california_housing, make_circles, 
+from sklearn.datasets import (fetch_california_housing, make_circles,
                               make_moons, make_blobs)
 from sklearn.preprocessing import StandardScaler
 
 def convert_to_sklearn(A):
     '''
     Creates a dataset X, Y from a dense data or an image A.
-        X: dense coordinates in matrix
-        Y: value in matrix
+        X: dense coordinates in the matrix A.
+        Y: value in the matrix A at the corresponding coordinates.
     '''
     X = np.concatenate([np.expand_dims(x, axis=-1)
                         for x in np.meshgrid(*map(range, A.shape))],
@@ -56,7 +56,7 @@ def convert_to_sklearn(A):
 
 def scale_data(X, Y):
     '''
-    Applies standard scaling to X, Y
+    Applies standard scaling to X, Y.
     '''
     scaler = StandardScaler()
     X = scaler.fit_transform(X)
@@ -112,6 +112,12 @@ def get_image_data(filepath, ymin=None, ymax=None, xmin=None, xmax=None,
 def get_california_housing():
     '''
     Returns sklearn California House price prediction dataset.
+    The task is to predict missing values in the features matrix X.
+    The targets Y are not used.
+    - The returned value consists of all combination of indices i, j 
+      in the matrix X and actual values to be predicted in the vector Y.
     '''
-    X, Y = fetch_california_housing(return_X_y=True)
-    return scale_data(X, Y)
+    X, Y_discarded = fetch_california_housing(return_X_y=True)
+    X, Y_discarded = scale_data(X, Y_discarded)
+    X, Y = convert_to_sklearn(X)
+    return X, Y        
