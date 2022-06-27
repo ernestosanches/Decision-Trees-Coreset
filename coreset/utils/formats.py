@@ -1,43 +1,43 @@
 '''
     Helper classes for working with different data formats.
-    Overview: 
+    Overview:
         - Data of dimensionality d can be a signal or non-signal.
-        -- Signal means that full data is represented by a dense 
+        -- Signal means that full data is represented by a dense
            d-dimensional tensor, and each entry in this tensor has a value.
         -- Non-signal means that data is represented as a list of d-dimensional
            vectors. Vectors may not cover the whole space.
-           
+
         - Data can be sparse or dense.
         -- Dense means that set of possible values is discrete and uniform.
-           i'th coordinate can take values from 0 to n_i. There are no 
+           i'th coordinate can take values from 0 to n_i. There are no
            missing values.
         -- Sparse means that set of possible values is discrete, but
            non-uniform. i'th coordinate can take values from a predefined
-           set of possible values. This set of values is determined from 
+           set of possible values. This set of values is determined from
            the data (such as by calling np.unique(X) to get unique values)
-    
+
     Supported formats:
         1. SparseData - sparse signal data. Data is signal, but the
         discrete set of possible values is determined by the unique values
         on each axis in the input data.
-        For example, 2-dimensional input data 
+        For example, 2-dimensional input data
             X = [[1,3], [2,3], [3,4]]
             Y = [10, 11, 12]
         will result in a signal defined over grid:
             x_1 in {1,2,3}
             x_2 in {3,4}
-        where there is a defined value of Y in positions 
+        where there is a defined value of Y in positions
             {1,3} - y=10, {2,3} - y=11, {3,4} - y=12
-        and there is no defined value of Y in positions 
-            {1,4}, {2,4}, {3,3} 
-            
-        2. CoresetData - a weighted subset of the original data, 
+        and there is no defined value of Y in positions
+            {1,4}, {2,4}, {3,3}
+
+        2. CoresetData - a weighted subset of the original data,
            such as SparseData.
-           
+
 *******************************************************************************
 MIT License
 
-Copyright (c) 2021 Ibrahim Jubran, Ernesto Evgeniy Sanches Shayda, 
+Copyright (c) 2021 Ibrahim Jubran, Ernesto Evgeniy Sanches Shayda,
                    Ilan Newman, Dan Feldman
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -61,9 +61,9 @@ SOFTWARE.
 '''
 
 ####################################### NOTES #################################
-# - Please cite our paper when using the code: 
-#             "Coresets for Decision Trees of Signals" (NeurIPS'21) 
-#             Ibrahim Jubran, Ernesto Evgeniy Sanches Shayda, 
+# - Please cite our paper when using the code:
+#             "Coresets for Decision Trees of Signals" (NeurIPS'21)
+#             Ibrahim Jubran, Ernesto Evgeniy Sanches Shayda,
 #             Ilan Newman, Dan Feldman
 #
 ###############################################################################
@@ -89,12 +89,12 @@ class SparseData:
     def init_valid(self):
         ''' Initializes and valid mask to define all data as valid '''
         self.valid = np.ones(len(self.X), dtype=bool)
-    
+
     def init_uid(self):
         ''' Initializes indices after sorting the data on first dimension '''
         self.set_curr_dim_and_sort(0, stable=True)
-        self.uid = np.arange(len(self.Y)) 
-        
+        self.uid = np.arange(len(self.Y))
+
     def get_data(self):
         ''' Placeholder method to override in child classes'''
         return self
@@ -112,7 +112,7 @@ class SparseData:
         return self.split_idx(idx_train, idx_test)
 
     def split_idx(self, idx_train, idx_test):
-        ''' Train-test split given indices of items in train and test sets '''        
+        ''' Train-test split given indices of items in train and test sets '''
         X_train, X_test, Y_train, Y_test = (
             self.X[idx_train], self.X[idx_test],
             self.Y[idx_train], self.Y[idx_test])
@@ -154,7 +154,7 @@ class SparseData:
 
 
     def fit_rf(self, sample_weight, k, n_estimators=100):
-        ''' Fits a random forest model with predefined parameters. 
+        ''' Fits a random forest model with predefined parameters.
             Goal is to produce a k-segmentation.
             n_estimator trees are fitted each with k/n_estimators leaves '''
         model = RandomForestRegressor(max_leaf_nodes = k//n_estimators,
@@ -166,9 +166,9 @@ class SparseData:
         return model.predict(self.X)
 
     def mse(self, y_pred):
-        ''' Calculates MSE error given model predictions ''' 
+        ''' Calculates MSE error given model predictions '''
         return mean_squared_error(self.Y, y_pred)
-    
+
     def std_dev_valid(self):
         ''' Calculates standard deviation of Y, considering only
             items marked by the valid mask '''
@@ -190,12 +190,12 @@ class SparseData:
         return SparseData(X_s, Y_s, uid_s, valid_s)
 
     def get_shape(self):
-        ''' Returns stored data shape ''' 
+        ''' Returns stored data shape '''
         return self.X.shape
 
     def set_curr_dim_and_sort(self, dim, stable=False):
         ''' Sorts stored data on a gived dimension index.
-            Optionally applies a stable sorting algorithm to prevent 
+            Optionally applies a stable sorting algorithm to prevent
             reshuffling of the data on subsequent sorts on other dimensions '''
         if self.curr_dim == dim:
             return # already sorted by this dimension
@@ -219,14 +219,14 @@ class SparseData:
         return len(self.changes_on_dim)
 
     def idx_to_block(self, idx):
-        ''' Returns first element in the data when idx'th change 
+        ''' Returns first element in the data when idx'th change
             occurs on the self.curr_dim dimension '''
         size = self.size_on_dim()
         n = len(self.Y)
         return n if idx >= size else self.changes_on_dim[idx]
 
     def get_slice(self, start_idx, end_idx):
-        ''' Returns a subset of data, consisting on blocks of 
+        ''' Returns a subset of data, consisting on blocks of
             non-changing elements on the dimension self.curr_dim,
             given starting and ending indices of such blocks. '''
         start_idx = self.idx_to_block(start_idx)
@@ -237,7 +237,7 @@ class SparseData:
             None if self.valid is None else self.valid[start_idx : end_idx])
 
     def get_single_points_split(self):
-        ''' Returns a set of slices containing single blocks of 
+        ''' Returns a set of slices containing single blocks of
             non-changing elements on dimension self.curr_dim '''
         n = len(self.Y)
         return [self.get_slice(i, i+1) for i in range(n)]
@@ -254,13 +254,13 @@ class SparseData:
         n = len(self.Y)
         return CoresetData(sample.X, sample.Y,
                            np.full(size, n / size), size)
-        
+
     def get_caratheodory_coreset(self, duplicate=False):
         ''' Computes a Caratheory coreset using algorithm from utils/booster.py
             Optionally duplicates the coreset data using a smoothing algorithm
-            described in the paper. 
+            described in the paper.
             -- Duplication is only needed to use the coreset
-            without implementing a custom Coreset-Cost algorithm 
+            without implementing a custom Coreset-Cost algorithm
             (as described in the paper) inside sklearn's Decision Tree model.
         '''
         X_r = []
@@ -285,6 +285,9 @@ class SparseData:
                     Y_r.append(y[i])
                     w_r.append(c_weight)
             else:
+                # Applies filling algorithm described in the paper
+                # to be able to use original DecisionTree algorithms
+                # without cost function modification.
                 while c_weight > 0 and filled_weight < len(y):
                     j = int(filled_weight)
                     X_r.append(x[j:j+1, :])
@@ -303,7 +306,7 @@ class SparseData:
 
 
 class CoresetData:
-    ''' Defines a subset of data 
+    ''' Defines a subset of data
         Apart from the data itself, contains information about
         weights and a displayed size of the coreset '''
     def __init__(self, X, Y, weights, size):
@@ -333,10 +336,9 @@ class CoresetData:
     def concatenate(iterable, keep_size=False):
         ''' Combines a collection of coresets into a single coreset '''
         X, Y, weights, size = zip(*[
-            (coreset.X, coreset.Y, coreset.weights, 
+            (coreset.X, coreset.Y, coreset.weights,
              coreset.size if keep_size else 1)
             for coreset in iterable])
         return CoresetData(
             np.vstack(X), np.concatenate(Y),
             np.concatenate(weights), np.sum(size))
-
