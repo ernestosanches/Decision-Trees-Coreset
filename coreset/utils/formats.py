@@ -309,9 +309,9 @@ class CoresetData:
     ''' Defines a subset of data
         Apart from the data itself, contains information about
         weights and a displayed size of the coreset '''
-    def __init__(self, X, Y, weights, size):
-        self.X, self.Y, self.weights, self.size = (
-            X, Y, weights, size)
+    def __init__(self, X, Y, weights, size_partition):
+        self.X, self.Y, self.weights, self.size_partition = (
+            X, Y, weights, size_partition)
 
     def get_data(self):
         ''' Returns the underlying data '''
@@ -335,10 +335,15 @@ class CoresetData:
     @staticmethod
     def concatenate(iterable, keep_size=False):
         ''' Combines a collection of coresets into a single coreset '''
-        X, Y, weights, size = zip(*[
+        X, Y, weights, size_partition = zip(*[
             (coreset.X, coreset.Y, coreset.weights,
-             coreset.size if keep_size else 1)
+             coreset.size_partition if keep_size else 1)
             for coreset in iterable])
         return CoresetData(
             np.vstack(X), np.concatenate(Y),
-            np.concatenate(weights), np.sum(size))
+            np.concatenate(weights), np.sum(size_partition))
+
+    @property
+    def size(self):
+        assert(len(self.X) == len(self.Y) == len(self.weights))
+        return len(self.X)

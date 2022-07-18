@@ -1,11 +1,11 @@
 '''
     Optimized partitioning algorithms for high-dimensional signal data.
     Optimized 2-dimensional algorithms are found in partition_2d.py
-    
+
 *******************************************************************************
 MIT License
 
-Copyright (c) 2021 Ibrahim Jubran, Ernesto Evgeniy Sanches Shayda, 
+Copyright (c) 2021 Ibrahim Jubran, Ernesto Evgeniy Sanches Shayda,
                    Ilan Newman, Dan Feldman
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -29,9 +29,9 @@ SOFTWARE.
 '''
 
 ####################################### NOTES #################################
-# - Please cite our paper when using the code: 
-#             "Coresets for Decision Trees of Signals" (NeurIPS'21) 
-#             Ibrahim Jubran, Ernesto Evgeniy Sanches Shayda, 
+# - Please cite our paper when using the code:
+#             "Coresets for Decision Trees of Signals" (NeurIPS'21)
+#             Ibrahim Jubran, Ernesto Evgeniy Sanches Shayda,
 #             Ilan Newman, Dan Feldman
 #
 ###############################################################################
@@ -54,7 +54,7 @@ def get_splits_condition(data,
         condition_on_slice: (data, return_from_func, stats) -> bool
             Function returns a boolean split condition, after reaching
             such condition a new slice should start.
-        allow_over_condition: allows to have slices with last element 
+        allow_over_condition: allows to have slices with last element
             included, which made the slice to not satisfy the condition.
         calculate_stats: keeps calculating running_stats of each slice
     Returns:
@@ -91,12 +91,12 @@ def get_splits_condition(data,
         is_prev_valid = is_curr_valid
         is_curr_valid = (condition is not None)
         # helper variable to correctly determine over condition
-        curr_increment_len = 1 
+        curr_increment_len = 1
         if condition:
             if (allow_over_condition or idx_end == idx_start or
                 not is_prev_valid):
                 # if it is a slice of size 1, adding even if condition
-                # just happened but not if it is the last index 
+                # just happened but not if it is the last index
                 # (adding later in this case)
                 if idx_end + 1 != n:
                     result.extend(func_result_curr)
@@ -182,8 +182,8 @@ def bicriteria(data, k):
     return result, total_variance
 
 def balanced_partition_1d(data, gamma, sigma):
-    ''' Balanced partition algorithm on a single dimension 
-        If data is high-dimensional, splits are done on the last dimension in 
+    ''' Balanced partition algorithm on a single dimension
+        If data is high-dimensional, splits are done on the last dimension in
         the shape of the data. Splits on last dimension are done according
         to condition of a maximum allowed variance of a slice '''
     n, d = data.get_shape()
@@ -197,15 +197,15 @@ def balanced_partition(data, gamma, sigma, d_start=0):
     ''' Balanced partition algorithm on high-dimensional data.
         Splits on all dimensions are done according
         to condition of a maximum allowed valid elements in a slice.
-        Only on the last dimension the 1-d splitting is done based on a 
+        Only on the last dimension the 1-d splitting is done based on a
         condition of maximum variance of a slice '''
     n, d = data.get_shape()
     needed = 1 / (gamma ** (d-d_start-1))
 
     if n <= needed:
         # no point in algorithmic splitting as we will get single points anyway
-        return data.get_single_points_split() 
-    
+        return data.get_single_points_split()
+
     if d_start == d - 1:
         return balanced_partition_1d(data, gamma, sigma)
 

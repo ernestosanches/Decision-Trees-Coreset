@@ -4,7 +4,7 @@
 *******************************************************************************
 MIT License
 
-Copyright (c) 2021 Ibrahim Jubran, Ernesto Evgeniy Sanches Shayda, 
+Copyright (c) 2021 Ibrahim Jubran, Ernesto Evgeniy Sanches Shayda,
                    Ilan Newman, Dan Feldman
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -28,21 +28,21 @@ SOFTWARE.
 '''
 
 ####################################### NOTES #################################
-# - Please cite our paper when using the code: 
-#             "Coresets for Decision Trees of Signals" (NeurIPS'21) 
-#             Ibrahim Jubran, Ernesto Evgeniy Sanches Shayda, 
+# - Please cite our paper when using the code:
+#             "Coresets for Decision Trees of Signals" (NeurIPS'21)
+#             Ibrahim Jubran, Ernesto Evgeniy Sanches Shayda,
 #             Ilan Newman, Dan Feldman
 #
 ###############################################################################
 
-
+import numpy as np
 from sklearn.tree import DecisionTreeRegressor
 from coreset.utils.formats import CoresetData
 from coreset.utils.partition_2d import balanced_partition_2d
 from coreset.utils.partition_recursive import (
     balanced_partition, bicriteria)
 
-def dt_coreset(data, k, epsilon, 
+def dt_coreset(data, k, epsilon,
                use_caratheodory=True, use_exact_bicriteria=False,
                verbose=False, return_slices=False):
     '''
@@ -50,37 +50,38 @@ def dt_coreset(data, k, epsilon,
 
     Parameters:
         use_exact_bicriteria:
-            Proposed approximate bicriteria algorithm can be turned off 
-            by setting the parameter use_exact_bicriteria=True. In this case, 
-            a single DecisionTreeRegressor is trained on the data to provide 
+            Proposed approximate bicriteria algorithm can be turned off
+            by setting the parameter use_exact_bicriteria=True. In this case,
+            a single DecisionTreeRegressor is trained on the data to provide
             better approximation at the cost of a longer time to construct
             the coreset.
-            Note, that if coreset will be used to train forests consisting 
+            Note, that if coreset will be used to train forests consisting
             of hundreds of trees, or to tune hyperparameters over hundreds
             of possible values, constructing a single decision tree
             will not affect the overall running time much.
         use_caratheodory:
-            After computing balanced partition, a 4-points 1-mean Caratheodory 
-            coreset for each partition cell is computed if use_caratheodory is 
-            is True. Otherwise, a random 4-points sample is computed for each 
+            After computing balanced partition, a 4-points 1-mean Caratheodory
+            coreset for each partition cell is computed if use_caratheodory is
+            is True. Otherwise, a random 4-points sample is computed for each
             cell.
             use_caratheodory=True should be used both in theory and practice,
             unless experimenting with the coreset itself.
         return_slices:
-            If return_slices is false, a united coreset for the whole data 
-            is returned. If return_slices is true, raw cells of balanced 
+            If return_slices is false, a united coreset for the whole data
+            is returned. If return_slices is true, raw cells of balanced
             partition are returned.
-            return_slices=False should be used, unless experimenting with the 
+            return_slices=False should be used, unless experimenting with the
             coreset.
-    Return value:       
-        The function returns two coresets: original small coreset, and 
+    Return value:
+        The function returns two coresets: original small coreset, and
         a smoothed version of it with duplicated points. Original coreset
         can be used with DecisionTreeRegressor that has a custom Fitting-loss
-        algorithm implemented as a cost function, as described in the paper. 
-        To avoid modification of the class from sklearn library, a smoothed 
+        algorithm implemented as a cost function, as described in the paper.
+        To avoid modification of the class from sklearn library, a smoothed
         coreset can be used instead.
     '''
     n, d = data.X.shape
+
 
     if use_exact_bicriteria:
         m = DecisionTreeRegressor(max_leaf_nodes=k)
@@ -98,16 +99,19 @@ def dt_coreset(data, k, epsilon,
     #   alpha = k * np.log(n)
     #   beta = k * np.log(n) ** 2
     alpha, beta = 1, 1
-    # Note: Theoretical value for gamma is too pessimistic:    
+    # Note: Theoretical value for gamma is too pessimistic:
     #   gamma = epsilon ** 2 / (beta * k)
-    gamma = epsilon / beta 
+    gamma = epsilon / beta
     sigma = sigma_approx / alpha
-    
+
+    print("Expected approximate coreset size: {}".format(
+        int(np.ceil(1 / gamma ** d))))
+
     if verbose:
         print("bicriteria: epsilon={} sigma={}".format(
             epsilon, sigma_approx))
         print("bicriteria segments :", bicriteria_segments_count)
-        print(("balanced partition: " + 
+        print(("balanced partition: " +
                "alpha={:.5f}, beta={:.5f}," +
                "gamma={:.5f}, sigma={:.5f}:").format(
             alpha, beta, gamma, sigma))
@@ -124,14 +128,14 @@ def dt_coreset(data, k, epsilon,
 
     if return_slices:
         return slices
- 
+
     if use_caratheodory:
         coreset = CoresetData.concatenate(
             [data.get_caratheodory_coreset(duplicate=False)
              for data in slices if len(data.X)])
         coreset_dup = CoresetData.concatenate(
             [data.get_caratheodory_coreset(duplicate=True)
-             for data in slices if len(data.X)]) 
+             for data in slices if len(data.X)])
     else:
         coreset_size = 4
         coreset = CoresetData.concatenate(
