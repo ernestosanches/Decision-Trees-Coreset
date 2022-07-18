@@ -1,0 +1,183 @@
+1. Title: Gesture Phase Segmentation
+
+2. Sources:
+
+     (a) Creators: 
+		Renata Cristina Barros Madeo (Madeo, R. C. B.)
+		Priscilla Koch Wagner (Wagner, P. K.)		
+            	Sarajane Marques Peres (Peres, S. M.)
+        	{renata.si, priscilla.wagner, sarajane} at usp.br
+                http://each.uspnet.usp.br/sarajane/
+
+     (b) Donor: 
+		University of Sao Paulo
+		School of Art, Sciences and Humanities
+		Sao Paulo, SP, Brazil
+		http://www5.usp.br/en/
+			
+     (c) Date: June, 2014
+
+
+3. Past Usage:
+
+   1.  Madeo, R. C. B. ; Lima, C. A. M. ; PERES, S. M. . Gesture Unit Segmentation using Support Vector Machines: Segmenting 
+       Gestures from Rest Positions. In: Symposium on Applied Computing (SAC), 2013, Coimbra. Proceedings of the 28th Annual 
+       ACM Symposium on Applied Computing (SAC), 2013. p. 46-52.
+       * In this paper, the videos A1 and A2 were studied.
+
+   2.  Wagner, P. K. ; PERES, S. M. ; Madeo, R. C. B. ; Lima, C. A. M. ; Freitas, F. A. . Gesture Unit Segmentation Using 
+       Spatial-Temporal Information and Machine Learning. In: 27th Florida Artificial Intelligence Research Society Conference 
+       (FLAIRS), 2014, Pensacola Beach. Proceedings of the 27th Florida Artificial Intelligence Research Society Conference 
+       (FLAIRS). Palo Alto : The AAAI Press, 2014. p. 101-106.
+       * In this paper, the videos A1, A2, A3, B1, B3, C1 and C3 were studied.
+
+   3.  Madeo, R. C. B.. Support Vector Machines and Gesture Analysis: incorporating temporal aspects  (in Portuguese). Master 
+       Thesis - Universidade de Sao Paulo, Sao Paulo Researcher Foundation. 2013.
+       * In this document, the videos named B1 and B3 in the document correspond to videos C1 and C3 in this dataset. Only 
+       five videos were explored in this document: A1, A2, A3, C1 and C3.
+
+   4.  Wagner, P. K. ; Madeo, R. C. B. ; PERES, S. M. ; Lima, C. A. M.. Segmentaçao de Unidades Gestuais com Multilayer 
+       Perceptrons (in Portuguese). In: Encontro Nacional de Inteligencia Artificial e Computacional (ENIAC), 2013, Fortaleza. 
+       Anais do X Encontro Nacional de Inteligencia Artificial e Computacional (ENIAC), 2013.
+       * In this paper, the videos A1, A2 and A3 were studied.
+
+
+4. Relevant Information:
+
+   --- Gesture Phase Segmentation consists in a temporal segmentation of gestures, performed by gesture researchers in
+       order to preprocess videos for further analysis. The description of gesture phase segmentation problem may be found 
+       in MADEO et al. (2013a) and MADEO et al. (2013b).
+
+   --- The dataset is composed by seven videos recorded using Microsoft Kinect sensor. Three different users were asked
+       to read three comic strips and to tell the stories in front of the sensor. Using Microsoft Kinect, we have obtained:
+       (a) a image of each frame, identified by a timestamp; (b) a text file containing positions (coordinates x, y, z) of
+       six articulation points -- left hand, right hand, left wrist, right wrist, head and spine, with each line in the file
+       corresponding to a frame and identified by a timestamp. The images enabled a manual segmentation of each file by a 
+       specialist, providing a ground truth for classification.
+
+   --- The dataset is organized in 14 files: 7 raw files and 7 processed files, one for each video which compose the dataset.
+       The name of the file refers to each video: the letter corresponds to the user (A, B, C) and the number corresponds to 
+       the story (1, 2, 3). The raw files contain the information obtained from Microsoft Kinect, described above. The processed 
+       file contains vectorial and scalar velocity and acceleration of left hand, right hand, left wrist, and right wrist. These 
+       measures were obtained after normalizing positions of hand and wrists considering the position of head and spine, and 
+       using a displacement equal to 3 in order to measure velocity, as described in MADEO et al. (2013c).
+
+
+5. Number of Instances: 
+
+	A1 - 1747 frames
+	A2 - 1264 frames
+	A3 - 1834 frames
+	B1 - 1073 frames
+	B3 - 1423 frames
+	C1 - 1111 frames
+	C3 - 1448 frames
+
+
+6. Number of Attributes: 
+
+	Raw files (*_raw.csv): 	      18 numeric attributes (double), a timestamp (integer) and a class attribute (nominal).
+	Processed files (*_va3.csv):  32 numeric attributes (double) and a class attribute (nominal).
+	A feature vector with up to 51 numeric attributes can be generated with the two files mentioned above.
+
+
+7. Attribute Information:
+
+   Raw files:
+
+   1. lhx - Position of left hand (x coordinate)
+   2. lhy - Position of left hand (y coordinate)
+   3. lhz - Position of left hand (z coordinate)
+   4. rhx - Position of right hand (x coordinate)
+   5. rhy - Position of right hand (y coordinate)
+   6. rhz - Position of right hand (z coordinate)
+   7. hx - Position of head (x coordinate)
+   8. hy - Position of head  (y coordinate)
+   9. hz - Position of head  (z coordinate)
+   10. sx - Position of spine (x coordinate)
+   11. sy - Position of spine (y coordinate)
+   12. sz - Position of spine (z coordinate)
+   13. lwx - Position of left wrist (x coordinate)
+   14. lwy - Position of left wrist (y coordinate)
+   15. lwz - Position of left wrist (z coordinate)
+   16. rwx - Position of right wrist (x coordinate)
+   17. rwy - Position of right wrist (y coordinate)
+   18. rwz - Position of right wrist (z coordinate)
+   19. timestamp - 
+   20. phase: 
+		-- Rest
+		-- Preparation
+		-- Stroke
+		-- Hold
+		-- Retraction
+
+   Processed files:
+
+   1. Vectorial velocity of left hand (x coordinate)
+   2. Vectorial velocity of left hand (y coordinate)
+   3. Vectorial velocity of left hand (z coordinate)
+   4. Vectorial velocity of right hand (x coordinate)
+   5. Vectorial velocity of right hand (y coordinate)
+   6. Vectorial velocity of right hand (z coordinate)
+   7. Vectorial velocity of left wrist (x coordinate)
+   8. Vectorial velocity of left wrist (y coordinate)
+   9. Vectorial velocity of left wrist (z coordinate)
+   10. Vectorial velocity of right wrist (x coordinate)
+   11. Vectorial velocity of right wrist (y coordinate)
+   12. Vectorial velocity of right wrist (z coordinate)
+   13. Vectorial acceleration of left hand (x coordinate)
+   14. Vectorial acceleration of left hand (y coordinate)
+   15. Vectorial acceleration of left hand (z coordinate)
+   16. Vectorial acceleration of right hand (x coordinate)
+   17. Vectorial acceleration of right hand (y coordinate)
+   18. Vectorial acceleration of right hand (z coordinate)
+   19. Vectorial acceleration of left wrist (x coordinate)
+   20. Vectorial acceleration of left wrist (y coordinate)
+   21. Vectorial acceleration of left wrist (z coordinate)
+   22. Vectorial acceleration of right wrist (x coordinate)
+   23. Vectorial acceleration of right wrist (y coordinate)
+   24. Vectorial acceleration of right wrist (z coordinate)
+   25. Scalar velocity of left hand
+   26. Scalar velocity of right hand
+   27. Scalar velocity of left wrist
+   28. Scalar velocity of right wrist
+   29. Scalar velocity of left hand
+   30. Scalar velocity of right hand
+   31. Scalar velocity of left wrist
+   32. Scalar velocity of right wrist
+   33. phase:
+		-- D (rest position, from portuguese "descanso")
+		-- P (preparation)
+		-- S (stroke)
+		-- H (hold)
+		-- R (retraction)
+
+
+8. Missing Attribute Values: None
+
+9. Extra information:
+
+       Gesture phase segmentation is a task with several inherent difficulties. First, it is a subjective task, since there
+       is no clear point where a phase begins. Thus, different specialists may provide different segmentations for the same
+       video. Also, some phases may present similar patterns, such as rest position and hold, where the hands remain paused.
+       Finally, gesture phase segmentation has open issues among researchers, such as if the phases should be segmented 
+       separatedly for each hand or if meaningless gesture -- such as touching the glasses while speaking -- may be considered
+       for gesture phase segmentation.
+
+       Also, it is important to consider that the gesticulation behavior may influence the performance of a classifier built 
+       for gesture segmentation. Thus, it is important to highlight that videos A1 and A2 were recorded in the same session, 
+       while video A3 was recorded in a different session, which may yield different gesticulation behaviour. 
+
+
+10. References:
+
+       Madeo, R. C. B. ; Lima, C. A. M. ; PERES, S. M. . Gesture Unit Segmentation using Support Vector Machines: Segmenting 
+       Gestures from Rest Positions. In: Symposium on Applied Computing (SAC), 2013, Coimbra. Proceedings of the 28th Annual 
+       ACM Symposium on Applied Computing (SAC), 2013a. p. 46-52.       
+
+       Madeo, R. C. B. ; Wagner, P. K. ; PERES, S. M.. A Review of Temporal Aspects of Hand Gesture Analysis Applied to 
+       Discourse Analysis and Natural Conversation. International Journal of Computer Science and Information Technology 
+       (Print), v. 5, p. 1-20, 2013b.
+
+       Madeo, R. C. B.. Support Vector Machines and Gesture Analysis: incorporating temporal aspects (in Portuguese). Master 
+       Thesis - Universidade de Sao Paulo, Sao Paulo Researcher Foundation. 2013c.
