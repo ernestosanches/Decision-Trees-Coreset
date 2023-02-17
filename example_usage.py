@@ -43,7 +43,6 @@ from data.datasets import scale_data, get_circles
 from sklearn.model_selection import train_test_split
 from experiments_common import evaluate_on_coreset, evaluate_on_full_data
 
-
 if __name__ == "__main__":
     # Data
     X, Y = get_circles(50000, 300)

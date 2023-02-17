@@ -4,8 +4,7 @@
         https://gist.github.com/wassname/a9502f562d4d3e73729dc5b184db2501 
 '''
 
-import numpy as np 
-
+import numpy as np
 
 try:
     # handle pytorch tensors etc, by using tensorboardX's method

@@ -26,7 +26,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 *******************************************************************************
 '''
-
+import concurrent
+import queue
 ####################################### NOTES #################################
 # - Please cite our paper when using the code:
 #             "Coresets for Decision Trees of Signals" (NeurIPS'21)
@@ -34,7 +35,8 @@ SOFTWARE.
 #             Ilan Newman, Dan Feldman
 #
 ###############################################################################
-
+from queue import Queue
+from threading import Thread
 import numpy as np
 from sklearn.tree import DecisionTreeRegressor
 from coreset.utils.formats import CoresetData
@@ -80,8 +82,33 @@ def dt_coreset(data, k, epsilon,
         To avoid modification of the class from sklearn library, a smoothed
         coreset can be used instead.
     '''
+    '''
+    # Alon Latman
+    Function that takes in a CoresetData object data and several other parameters: an integer k, a boolean value
+    use_exact_bicriteria, a float value epsilon, and a boolean value verbose. It also has an optional parameter
+    return_slices with a default value of False.
+    The function first retrieves the shape of the data matrix data.X, and assigns the number of rows and columns to the 
+    variables n and d.
+    Next, the function checks the value of use_exact_bicriteria. If it is True, the function creates a decision tree 
+    regressor model m, fits it to the data data.X and data.Y, and calculates the sum of squared errors between the
+    model's predictions and the actual data. It assigns the result to the variable sigma_approx, and sets the variable
+    bicriteria_segments_count to k.
+    If use_exact_bicriteria is False, the function calls the bicriteria function on data and k, and assigns the result 
+    to the variables segmentation_approx and sigma_approx. It also sets bicriteria_segments_count to the length of 
+    segmentation_approx.
+    The function then defines the variables alpha and beta as 1, and gamma as epsilon / beta. It also sets sigma to
+    sigma_approx / alpha.
+    It then prints out the expected size of the approximate coreset based on the value of gamma, and depending on the 
+    value of verbose, it may also print out the values of epsilon, sigma_approx, bicriteria_segments_count, alpha, beta,
+    gamma, and sigma.
+    The function then sets the value of the variable fast_coreset to True if data.X is a 2D array, and to False 
+    otherwise. Depending on the value of fast_coreset, the function either calls the balanced_partition_2d function on
+    data, gamma, and sigma, or the balanced_partition function on the same arguments. It assigns the result to the
+    variable slices.
+    If verbose is True, the function prints out the number of segments in slices that contain data.
+    The function returns slices if return_slices is True, otherwise it returns nothing.
+    '''
     n, d = data.X.shape
-
 
     if use_exact_bicriteria:
         m = DecisionTreeRegressor(max_leaf_nodes=k)
@@ -129,6 +156,20 @@ def dt_coreset(data, k, epsilon,
     if return_slices:
         return slices
 
+    '''
+    # Alon Latman
+    Function that takes in a list of slices and a boolean value use_caratheodory, and returns a finite ordered list
+    containing two CoresetData objects.
+    If use_caratheodory is True, the function first creates two lists of CoresetData objects, coresets and coresets_dup,
+    by calling data.get_caratheodory_coreset on each slice in slices with the duplicate argument set to False and True,
+    respectively.
+    It then concatenates the lists of CoresetData objects into a single CoresetData object using the
+    CoresetData.concatenate method, and assigns the result to the variables coreset and coreset_dup.
+    If use_caratheodory is False, the function creates a CoresetData object by calling data.get_random_coreset(4) on
+    each slice in slices, and concatenating the resulting CoresetData objects using the CoresetData.concatenate method.
+    It then assigns the result to the variables coreset and coreset_dup.
+    Finally, the function returns a tuple containing the CoresetData objects coreset and coreset_dup.
+    '''
     if use_caratheodory:
         coreset = CoresetData.concatenate(
             [data.get_caratheodory_coreset(duplicate=False)

@@ -120,10 +120,23 @@ def get_splits_condition(data,
         idx_end += curr_increment_len
     return result
 
-
 def get_splits_valid(data, k, dim):
     ''' Splits the data using get_splits_condition where the condition
         is a maximum number of valid elements in a slice '''
+    '''
+    # Alon Latman
+    This function define a function called get_splits_valid that takes three arguments: data, k, and dim. 
+    The get_splits_valid function defines another function called condition_on_slice which takes two arguments: data and 
+    ret, and a variable stats. 
+    The condition_on_slice function returns None if the sum of the valid column in the data DataFrame is equal to 0, 
+    otherwise it returns a boolean value indicating whether the sum of the valid column is greater than v/k.
+    The get_splits_valid function then defines a variable v which is equal to the sum of the valid column in the data 
+    DataFrame. 
+    It defines a variable func_on_slice as None and calls the get_splits_condition function, passing in the data, 
+    func_on_slice, condition_on_slice, dim, allow_over_condition=False, and calculate_stats=False arguments.
+    The get_splits_valid function then iterates through the slices returned by the get_splits_condition function and 
+    calls the filter_valid method on each slice. Finally, the get_splits_valid function returns the list of slices.
+    '''
     def condition_on_slice(data, ret, stats):
         valid_count = data.valid.sum()
         return None if valid_count == 0 else (valid_count > v / k)
@@ -140,6 +153,18 @@ def get_splits_valid(data, k, dim):
 def get_splits_variance(data, target_variance, dim):
     ''' Splits the data using get_splits_condition where the condition
         is a maximum variance of a slice'''
+    '''
+    # Alon Latman
+    Function called get_splits_variance that takes two arguments: data and target_variance. 
+    The get_splits_variance function defines another function called condition_on_slice which takes three arguments: 
+    data, ret, and stats. 
+    The condition_on_slice function returns a boolean value indicating whether the s field of the stats object is 
+    greater than the target_variance argument.
+    The get_splits_variance function then defines a variable func_on_slice as None and calls the get_splits_condition 
+    function, passing in the data, func_on_slice, condition_on_slice, dim, allow_over_condition=False, and 
+    calculate_stats=True arguments. 
+    The get_splits_variance function returns the value returned by the get_splits_condition function.
+    '''
     def condition_on_slice(data, ret, stats):
         return stats.s > target_variance
     func_on_slice = None
@@ -151,6 +176,23 @@ def get_splits_variance(data, target_variance, dim):
 
 def bicriteria(data, k):
     ''' Bicriteria approximation of an optimal k-segmentation '''
+    '''
+    # Alon Latman
+    Function called bicriteria that takes two arguments: data and k. The function first initializes some variables: n 
+    and d are set to the shape of the data DataFrame, result is set to an empty list, and total_variance is set to 0. 
+    It then calls the init_uid and init_valid methods on the data DataFrame.
+    The function then enters a while loop that continues as long as there are any True values in the valid column of the 
+    data DataFrame. Inside the loop, it initializes the Q list to contain the data DataFrame, and then iterates over the 
+    dimensions in range(d). 
+    For each dimension, it initializes the P list to be empty and then iterates over the current blocks in Q. 
+    For each block, it calls the get_splits_valid function to partition the block into sub-blocks, and then adds the 
+    sub-blocks to the P list. After all blocks have been partitioned, it sets Q to be equal to P.
+    After the loop over dimensions has completed, the function computes the variance of all blocks in Q and adds the 
+    blocks with the smallest half of variances to the result list. 
+    It also marks all of these blocks as invalid by setting their corresponding values in the valid column to 0, 
+    and increments total_variance by the variance of the block.
+    The bicriteria function returns the result list and the total_variance value.
+    '''
     n, d = data.get_shape()
     result = []
     total_variance = 0
@@ -179,7 +221,9 @@ def bicriteria(data, k):
             data.valid[uid_slice] = 0
             result.append(uid_slice)
             total_variance += variance
+
     return result, total_variance
+
 
 def balanced_partition_1d(data, gamma, sigma):
     ''' Balanced partition algorithm on a single dimension

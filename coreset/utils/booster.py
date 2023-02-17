@@ -91,6 +91,17 @@ def Fast_Caratheodory(P,u,coreset_size, dtype = 'float64'):
                  2. the weighted sum of P and u (input) is the same as the weighted sum of P and new_u (output)
     Computation time: O(nd+logn*d^4)
     """
+    '''
+    # Alon Latman
+    The function processes the input points and weights in P and u and returns a new weight vector that represents a 
+    subset of the original points with the specified number of points (given by coreset_size) such that the weighted
+    mean of the coreset is close to the weighted mean of the original set of points.
+    The function first divides the points and weights into groups, and computes the weighted mean of each group.
+    It then calls another function, Caratheodory, which selects a subset of the groups that approximates the weighted 
+    mean of all the groups. The function then repeats this process with the selected groups until the number of non-zero
+    weights is less than or equal to coreset_size. 
+    Finally, the function maps the weights back to the original set of points and returns the resulting weight vector.
+    '''
     d = P.shape[1]
     n = P.shape[0]
     m = 2*d + 2
@@ -165,6 +176,23 @@ def linregcoreset(P, u, b=None, c_size=None, dtype='float64'):
                  i.e., the output of a call to linearRegression with the original input or with the coreset is the same.
     Computation time: O(nd^2+logn*d^8)
     """
+    '''
+    # Alon Latman
+    The coreset construction algorithm works as follows:
+    1. It first concatenates the points P and the labels b (if given) into a new array P_tag.
+    2. It reshapes P_tag into a 3D array with shape (n_tag, d_tag, 1), where n_tag is the number of points and d_tag is 
+    the number of dimensions.
+    3. It computes the outer product of each point with itself and stores the result in a new array P_tag, using 
+    numpy's einsum function.
+    3. It reshapes P_tag into a 2D array with shape (n_tag, d_tag^2).
+    4. It calls the Fast_Caratheodory function to compute a new vector of weights coreset_weigts for a coreset of size 
+    c_size (if given) or size n_tag (if c_size is not given).
+    5. It uses np.nonzero to find the indices of the non-zero elements in coreset_weigts.
+    6. It returns the points and weights corresponding to these indices, and if b was given, it also returns the labels 
+    corresponding to these indices.
+    The overall complexity of the coreset construction algorithm is O(nd^2 + lgn*d^8), where n is the number of points, 
+    d is the number of dimensions, and logn is the number of iterations of the Fast_Caratheodory function.
+    '''
     if b is not None:
         P_tag = np.append(P, b, axis=1)
     else:
@@ -199,6 +227,20 @@ def stream_coreset(P, u, b, folds=None, dtype='float64'):
                  i.e., the output of a call to linearRegression with the original input or with the coreset is the same.
     Computation time: O(nd^2+logn*d^8)
     """
+    '''
+    # Alon Latman
+    This function is a modified version of the linregcoreset function. 
+    It takes as input a set of points P, a vector of weights u, a vector of labels b, and an optional parameter folds 
+    which is used to divide the input into folds number of equal-sized batches. It returns a new set of points cc, a new 
+    vector of weights uc, and a new vector of labels bc, which are constructed by concatenating the coresets computed 
+    for each batch of the input.
+    The function first checks if the folds parameter is None. If it is, it simply calls the linregcoreset function on 
+    the entire input and returns the result. Otherwise, it divides the input into folds number of equal-sized batches 
+    and calls the linregcoreset function on each batch to compute a coreset for that batch. It then concatenates the 
+    coresets and the corresponding weights and labels for all the batches to form the final coreset.
+    If the size of a coreset for a batch is smaller than a predetermined size size_of_coreset, the function pads the 
+    coreset with zeros to reach the desired size.
+    '''
     if folds is None:
         return linregcoreset(P, u, b, dtype=dtype)
     m = int(P.shape[0] / folds)

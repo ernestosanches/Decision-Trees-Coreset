@@ -59,6 +59,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 *******************************************************************************
 '''
+import multiprocessing
 
 ####################################### NOTES #################################
 # - Please cite our paper when using the code:
@@ -70,6 +71,7 @@ SOFTWARE.
 
 
 import numpy as np
+from joblib._multiprocessing_helpers import mp
 from sklearn.model_selection import train_test_split
 from sklearn.tree import DecisionTreeRegressor
 from sklearn.metrics import mean_squared_error
@@ -193,10 +195,12 @@ class SparseData:
         ''' Returns stored data shape '''
         return self.X.shape
 
+
     def set_curr_dim_and_sort(self, dim, stable=False):
         ''' Sorts stored data on a gived dimension index.
             Optionally applies a stable sorting algorithm to prevent
             reshuffling of the data on subsequent sorts on other dimensions '''
+
         if self.curr_dim == dim:
             return # already sorted by this dimension
         self.curr_dim = dim
@@ -210,9 +214,9 @@ class SparseData:
         # stores indices of elements where the data on given dimension
         # changes compared to the previous element, for algorithms speedup
         # This variable stores changes on the self.curr_dim dimension
-        self.changes_on_dim = ([0] +
-                               [i for i in range(1, n)
-                                if self.X[i, dim] != self.X[i-1, dim]])
+        differences = np.diff(self.X[:, dim])
+        self.changes_on_dim = np.where(differences != 0)[0]
+
 
     def size_on_dim(self):
         ''' Returns number of unique values on given dimension '''
